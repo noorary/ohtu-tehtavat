@@ -1,16 +1,22 @@
 package ohtu;
 
 import ohtu.verkkokauppa.*;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
 
+@Component
 public class Main {
 
     public static void main(String[] args) {
 
-        ViitegeneraattoriToteutus viitegen = new ViitegeneraattoriToteutus();
-        KirjanpitoToteutus kirjanpito      = new KirjanpitoToteutus();
-        VarastoToteutus varasto            = new VarastoToteutus(kirjanpito);
-        PankkiToteutus pankki              = new PankkiToteutus(kirjanpito);
-        KauppaToteutus kauppa              = new KauppaToteutus(varasto, pankki, viitegen);
+        ApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class);
+
+        ViitegeneraattoriToteutus viitegen = ctx.getBean(ViitegeneraattoriToteutus.class);
+        KirjanpitoToteutus kirjanpito      = ctx.getBean(KirjanpitoToteutus.class);
+        VarastoToteutus varasto            = ctx.getBean(VarastoToteutus.class);
+        PankkiToteutus pankki              = ctx.getBean(PankkiToteutus.class);
+        KauppaToteutus kauppa              = ctx.getBean(KauppaToteutus.class);
 	
 
         // kauppa hoitaa yhden asiakkaan kerrallaan seuraavaan tapaan:
