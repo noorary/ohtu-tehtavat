@@ -5,6 +5,8 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
+import com.google.errorprone.annotations.CheckReturnValue;
+
 import org.checkerframework.dataflow.qual.TerminatesExecution;
 
 public class KauppaTest {
@@ -125,4 +127,78 @@ public class KauppaTest {
 
 
     }
+
+    @Test 
+    public void nollaaEdellisetTiedot() {
+
+        when(varasto.saldo(1)).thenReturn(10); 
+        when(varasto.haeTuote(1)).thenReturn(new Tuote(1, "maito", 5));
+
+        Kauppa k = new Kauppa(varasto, pankki, viite);
+
+        k.aloitaAsiointi();
+        k.lisaaKoriin(1);
+        k.lisaaKoriin(1);
+
+        k.aloitaAsiointi();
+        k.lisaaKoriin(1);
+
+        k.tilimaksu("pekka", "12345");
+
+        verify(pankki).tilisiirto(eq("pekka"), eq(42), eq("12345"), anyString(), eq(5));
+    }
+
+    @Test 
+    public void jokaiselleMaksutapahtumalleOmaViitenumero() {
+
+        when(viite.uusi()).thenReturn(52).thenReturn(62);
+        
+
+        when(varasto.saldo(1)).thenReturn(10); 
+        when(varasto.haeTuote(1)).thenReturn(new Tuote(1, "maito", 5));
+
+        Kauppa k = new Kauppa(varasto, pankki, viite);
+
+        k.aloitaAsiointi();
+        k.lisaaKoriin(1);
+
+        k.tilimaksu("pekka", "12345");
+
+        verify(pankki).tilisiirto(eq("pekka"), eq(52), eq("12345"), anyString(), eq(5));
+
+        k.aloitaAsiointi();
+        k.lisaaKoriin(1);
+        k.lisaaKoriin(1);
+
+        k.tilimaksu("martti", "54321");
+
+        verify(pankki).tilisiirto(eq("martti"), eq(62), eq("54321"), anyString(), eq(10));
+
+
+    }
+
+    @Test 
+    public void poistaKoristaToimii() {
+
+        when(varasto.saldo(1)).thenReturn(10); 
+        when(varasto.haeTuote(1)).thenReturn(new Tuote(1, "maito", 5));
+
+        when(varasto.saldo(2)).thenReturn(5);
+        when(varasto.haeTuote(2)).thenReturn(new Tuote(2, "leipa", 3));
+
+        Kauppa k = new Kauppa(varasto, pankki, viite);
+
+        k.aloitaAsiointi();
+        k.lisaaKoriin(1);
+        k.lisaaKoriin(2);
+
+        k.poistaKorista(1);
+
+        k.tilimaksu("pekka", "12345");
+
+        verify(pankki).tilisiirto(eq("pekka"), eq(42), eq("12345"), anyString(), eq(3));
+
+    }
+
+
 }
