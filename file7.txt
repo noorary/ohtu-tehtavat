@@ -1,0 +1,3 @@
+I accidentally did this other way around, started modifying files in 
+haara, then stashed and now working on master. But i think learning objectives
+are still met. 
